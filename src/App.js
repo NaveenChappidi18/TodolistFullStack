@@ -1,24 +1,32 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import List from './List';
 
 function App() {
+  let arr = [];
+  const [todos, UpdateTodos] = useState(arr);
+
+  const AddTodo = () => {
+    let input = document.querySelector('input');
+    let value = input.value;
+    UpdateTodos([...todos, [value,false]]);
+    input.value = "";
+    // console.log(todos);
+  }
+
+  const updateTodo = (arr) => {
+    UpdateTodos(arr);
+  }
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div className="card">
+        <input type="text" placeholder='Enter your work' />
+        <button onClick={AddTodo}>Add</button>
+      </div>
+      <List children={todos} func={updateTodo}/>
     </div>
+    
   );
 }
 
