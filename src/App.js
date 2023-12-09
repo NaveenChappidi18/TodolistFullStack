@@ -16,6 +16,7 @@ function App() {
 
   const updateTodo = (arr) => {
     UpdateTodos(arr);
+    
   }
   
   return (
