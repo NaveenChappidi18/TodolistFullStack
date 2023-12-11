@@ -1,59 +1,71 @@
 import React, { useEffect, useState } from 'react';
-function List() {
+function List({ totData,setChanged }) {
     const email = "kasasunil344@gmail.com";
-    const [change, setChange] = useState(0);
-    let arr = [];
-    const [totData, setTotData] = useState(arr);
+    const [data, setData] = useState([]);
     useEffect(() => {
-        const data = fetch(`http://localhost:3000/list/${email}`).then((res) => res.json());
-        data.then((res) => {
-            setTotData(res);
-            console.log(res,totData);
-        });
-    }, [change]);
-    const clear = (ind) => {
-        fetch(`http://localhost:3000/delete/${ind}/${email}`, {
+        setData(totData);
+    }, [totData])
+    const updateLocalDataToFalse = (ind) => {
+        let temp = [];
+        for (let i = 0; i < data.length; i++) {
+            if (i !== ind) {
+                temp.push(data[i]);
+            }
+            else {
+                temp.push([data[i][0], true]);
+            }
+        }
+        setData(temp);
+    }
+    const clear = async(ind) => {
+        await fetch(`http://localhost:3000/delete/${ind}/${email}`, {
             method: "DELETE",
             header: {
-                "content-Type": "application/JSON",
+                "content-Type": "application/json",
             }
         });
-        const c = 1 - change;
-        setChange(c);
+        setChanged();
     }
-
-    // const edit = (val, ind) => {
-        
-    // }
-    // const updateArray = (ind) => {
-    //     let arr = [];
-    //     for (let i = 0; i < children.length; i++) {
-    //         if (i == ind) {
-    //             arr.push([children[i][0], true]);
-    //         }
-    //         else {
-    //             arr.push(children[i]);
-    //         }
-    //     }
-    //     func(arr);
-    // }
+    const updateArray = async (ind) => {
+        let innerValue = document.getElementById("edit").value;
+        console.log(innerValue);
+        let prevValue = totData[ind][0];
+        if (innerValue.trim() === "") {
+            alert("Enter some value");
+        }
+        else if (innerValue !== prevValue) {
+            await fetch(`http://localhost:3000/update/${ind}/${email}`, {
+                method: 'put',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    updatedTodo: innerValue,
+                }),
+            });
+            setChanged();
+        }
+        else {
+            setChanged();
+        }
+    }
     return (
         <div>
-            {totData.map((ele, index) => {
-                if (ele.isOk) {
+            {data.map((ele, index) => {
+                if (ele[1]) {
                     return (
                         <span key={index}>
                             <br />
-                            <input type="text" id="edit" placeholder={ele.data} />
-                            {/* <button onClick={() => edit(document.getElementById("edit").value,index)}>ok</button> */}
+                            <input type="text" id="edit" placeholder={ele[0]} />
+                            <button onClick={() => updateArray(index)}>ok</button>
                         </span>
                     );
                 } else {
                     return (
                         <span key={index}>
-                            <li>{ele.data}</li>
-                            <button onClick={() => clear(index)}>complete</button>
-                            {/* <button onClick={() => updateArray(index)}>edit</button> */}
+                            <li>{ele[0]}</li>
+                            <button onClick={() => { clear(index)  }}>complete</button>
+                            <button onClick={() => { updateLocalDataToFalse(index); }}>edit</button>
                         </span>
                     );
                 }
